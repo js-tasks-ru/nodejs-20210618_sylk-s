@@ -48,10 +48,16 @@ const saveFile = (req, res) => {
   const limitSizeStream = new LimitSizeStream({limit: 1024 * 1024}); // Limit to 1 Mb
   const limitSizeStreamErrorHandler = () => {
     stream.destroy();
-    fs.unlinkSync(filepath);
-
-    res.statusCode = 413;
-    res.end('File size limit exceeded');
+    fs.unlink(filepath, (e) => {
+      if (e) {
+        console.log('Unable to delete file', e);
+        res.statusCode = 500;
+        res.end('Internal server error');
+        return;
+      }
+      res.statusCode = 413;
+      res.end('File size limit exceeded');
+    });
   };
 
   // Main pipeline
@@ -64,7 +70,9 @@ const saveFile = (req, res) => {
 
   req.on('aborted', () => {
     stream.destroy();
-    fs.unlinkSync(filepath);
+    fs.unlink(filepath, (e) => {
+      e && console.log('Unable to delete file', e);
+    });
   });
 };
 
