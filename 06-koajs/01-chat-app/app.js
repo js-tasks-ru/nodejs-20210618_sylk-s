@@ -15,7 +15,7 @@ const Router = require('koa-router');
 const router = new Router();
 
 const stack = {
-  _store: [],
+  _store: {},
   _getRequestId: (ctx) => ctx.state.requestId,
 
   add: function({ctx, resolve}) {
@@ -42,10 +42,8 @@ router.get('/subscribe', async (ctx, next) => {
 });
 
 router.post('/publish', async (ctx, next) => {
-  ctx.status = 200;
-
   if (!ctx.request.body.message) {
-    return;
+    ctx.throw(400, 'Message is required');
   }
 
   for (const stackitem of stack.get()) {
@@ -53,6 +51,9 @@ router.post('/publish', async (ctx, next) => {
     stackitem.ctx.body = ctx.request.body.message;
     stackitem.resolve();
   }
+
+  ctx.status = 200;
+  ctx.body = 'Published';
 });
 
 app.use(router.routes());
