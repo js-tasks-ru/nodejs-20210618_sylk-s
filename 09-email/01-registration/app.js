@@ -1,6 +1,6 @@
 const Koa = require('koa');
 const path = require('path');
-const { v4: uuid } = require('uuid');
+const {v4: uuid} = require('uuid');
 const Router = require('koa-router');
 const handleMongooseValidationError = require('./libs/validationErrors');
 const mustBeAuthenticated = require('./libs/mustBeAuthenticated');
@@ -85,7 +85,7 @@ const fs = require('fs');
 const index = fs.readFileSync(path.join(__dirname, 'public/index.html'));
 app.use(async (ctx) => {
   if (ctx.url.startsWith('/api') || ctx.method !== 'GET') return;
-  
+
   ctx.set('content-type', 'text/html');
   ctx.body = index;
 });
