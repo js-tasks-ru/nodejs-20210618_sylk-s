@@ -3,32 +3,22 @@ const User = require('../models/User');
 const sendMail = require('../libs/sendMail');
 
 module.exports.register = async (ctx, next) => {
-  try {
-    const verificationToken = uuid();
-    const {email, displayName, password} = ctx.request.body;
+  const verificationToken = uuid();
+  const {email, displayName, password} = ctx.request.body;
 
-    const user = new User({email, displayName, verificationToken});
-    await user.setPassword(password);
-    await user.save();
+  const user = new User({email, displayName, verificationToken});
+  await user.setPassword(password);
+  await user.save();
 
-    await sendMail({
-      to: email,
-      subject: 'Подтверждение регистрации',
-      template: 'confirmation',
-      locals: {token: verificationToken},
-    });
+  await sendMail({
+    to: email,
+    subject: 'Подтверждение регистрации',
+    template: 'confirmation',
+    locals: {token: verificationToken},
+  });
 
-    ctx.body = {status: 'ok'};
-    ctx.status = 200;
-  } catch (e) {
-    if (!e.errors) throw e;
-
-    ctx.status = 400;
-    ctx.body = Object.entries(e.errors).reduce((acc, [key, err]) => {
-      acc.errors[key] = err.message;
-      return acc;
-    }, {errors: {}});
-  }
+  ctx.body = {status: 'ok'};
+  ctx.status = 200;
 };
 
 module.exports.confirm = async (ctx, next) => {
