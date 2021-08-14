@@ -21,7 +21,17 @@ const messageSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-
 });
+
+messageSchema.methods.toDTO = function() {
+  const doc = this.toObject();
+  doc.id = doc._id;
+
+  delete doc._id;
+  delete doc.__v;
+  delete doc.chat;
+
+  return doc;
+};
 
 module.exports = connection.model('Message', messageSchema);
